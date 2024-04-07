@@ -82,6 +82,8 @@ class InstructionTemplate {
     ValidArgTypes: Array<Array<OpType>> = [];
     constructor (InstructionName: string, ArgCount: number, ValidArgumentTypes: Array<Array<OpType>>) {
         this.Name = InstructionName
+        this.ArgCount = ArgCount;
+        this.ValidArgTypes = ValidArgumentTypes;
         if (ArgCount != ValidArgumentTypes.length) {
             throw `ValidArgumentTypes must include all arguments!\n ArgCount: ${ArgCount}\n ValidArgumentTypes: ${ValidArgumentTypes}\nInstructionName: ${InstructionName}`
         }
@@ -92,7 +94,7 @@ class InstructionTemplate {
 
 class ValidIC10Instructions {
     static readonly StationeersVersion = "#Temp" // Last stationeers version this was updated at
-    static readonly InstructionList: Array<any> = [
+    static readonly InstructionList: Array<InstructionTemplate> = [
         new InstructionTemplate("MOV", 2, [[OpType.Register, OpType.Immediate, OpType.Memory], [OpType.Register, OpType.Immediate, OpType.Memory]]),
         new InstructionTemplate("ADD", 2, [[OpType.Register, OpType.Immediate, OpType.Memory], [OpType.Register, OpType.Immediate, OpType.Memory]]),
         new InstructionTemplate("SUB", 2, [[OpType.Register, OpType.Immediate, OpType.Memory], [OpType.Register, OpType.Immediate, OpType.Memory]]),
@@ -110,10 +112,9 @@ class ValidIC10Instructions {
         new InstructionTemplate("BLT", 3, [[OpType.Register, OpType.Immediate, OpType.Memory], [OpType.Register, OpType.Immediate, OpType.Memory], [OpType.Label]]),
         new InstructionTemplate("BLE", 3, [[OpType.Register, OpType.Immediate, OpType.Memory], [OpType.Register, OpType.Immediate, OpType.Memory], [OpType.Label]]),
         new InstructionTemplate("JAL", 1, [[OpType.Label]]),
-        new InstructionTemplate("LBN", 4, [[OpType.Register], [OpType.Register, OpType.Immediate, OpType.Memory], [OpType.Register, OpType.Immediate, OpType.Memory], [OpType.Immediate], [OpType.Immediate, OpType.Immediate]]),
+        new InstructionTemplate("LBN", 4, [[OpType.Register], [OpType.Register, OpType.Immediate, OpType.Memory], [OpType.Register, OpType.Immediate, OpType.Memory], [OpType.Immediate]]),
     ]
 }
-
 /***
  * Internally, IC10 uses a string to specify what logic type to read in the l dx, *var* instruction
  * This limits the ability to dynamically read different values from a device in the same instruction
@@ -160,9 +161,9 @@ class ValidSASMInstructions {
         new InstructionTemplate("PEEK", 1,[[OpType.Register]]),
         new InstructionTemplate("YIELD",0,[]),
         //load batch named
-        new InstructionTemplate("LBN", 4, [[OpType.Register], [OpType.Register, OpType.Immediate, OpType.Memory], [OpType.Register, OpType.Immediate, OpType.Memory], [OpType.Immediate], [OpType.Immediate]]),
+        new InstructionTemplate("LBN", 4, [[OpType.Register], [OpType.Register, OpType.Immediate, OpType.Memory], [OpType.Register, OpType.Immediate, OpType.Memory], [OpType.Immediate]]),
         //load batch
-        new InstructionTemplate("LB", 3, [[OpType.Register], [OpType.Register, OpType.Immediate, OpType.Memory], [OpType.Immediate], [OpType.Immediate]]),
+        new InstructionTemplate("LB", 3, [[OpType.Register], [OpType.Register, OpType.Immediate, OpType.Memory], [OpType.Immediate]]),
         new InstructionTemplate("SET", 3 , [[OpType.Register, OpType.Immediate, OpType.Memory], [OpType.Register, OpType.Immediate, OpType.Memory], [OpType.Register, OpType.Immediate, OpType.Memory]]),
         new InstructionTemplate("DEC", 1, [[OpType.Register]]),
         new InstructionTemplate("INC", 1, [[OpType.Register]]),
@@ -191,10 +192,10 @@ class SASMInstruction {
     Operands: Array<GenericOperand>;
     constructor (InstructionName: string, Operands: Array<GenericOperand>) {
         //Validate Instruction
-        let ValidInstruction = ValidSASMInstructions.InstructionList.find((Instruction) => {
+        let ValidInstruction: InstructionTemplate = ValidSASMInstructions.InstructionList.find((Instruction) => {
             return Instruction.Name == InstructionName
         });
-        if (ValidInstruction === undefined) {
+        if (ValidInstruction == null || ValidInstruction == undefined) {
             throw new MalformedInstructionError(`Instruction ${InstructionName} is not a valid SASM instruction!`)
         } else {
             if (Operands.length != ValidInstruction.ArgCount) {

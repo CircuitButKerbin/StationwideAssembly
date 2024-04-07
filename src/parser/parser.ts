@@ -536,7 +536,7 @@ class compiler {
                         code.push(new InstructionSet.IC10Instruction("DIV", [memory.index, memory.index, new InstructionSet.Immediate(memory.scale)]));
                     }
                 } else {
-                    code.push(new InstructionSet.IC10Instruction("POKE", [new InstructionSet.Immediate(memory.base), referenceData instanceof InstructionSet.Register ? referenceData : new InstructionSet.Immediate(referenceData as number)]);
+                    code.push(new InstructionSet.IC10Instruction("POKE", [new InstructionSet.Immediate(memory.base), referenceData instanceof InstructionSet.Register ? referenceData : new InstructionSet.Immediate(referenceData as number)]));
                 }
             } else {
                 if (memory.index != null) {
